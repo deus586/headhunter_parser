@@ -21,80 +21,64 @@ class DBManager:
 
         Получает список всех компаний и количество вакансий у каждой компании.
         """
-        try:
-            with self.conn:
-                with self.conn.cursor() as cur:
-                    for i in self.companies:
-                        cur.execute(f"SELECT COUNT(*) FROM {i}")
-                        record = cur.fetchall()
-                        if len(record) == 0:
-                            continue
-                        print(f"{i}: {record[0][0]}")
-
-        finally:
-            self.conn.close()
+        with self.conn:
+            with self.conn.cursor() as cur:
+                for i in self.companies:
+                    cur.execute(f"SELECT COUNT(*) FROM {i}")
+                    record = cur.fetchall()
+                    if len(record) == 0:
+                        continue
+                    print(f"{i}: {record[0][0]}")
 
     def get_all_vacancies(self):
-        try:
-            with self.conn:
-                with self.conn.cursor() as cur:
-                    for i in self.companies:
-                        cur.execute(f"SELECT vacancy, salary, url FROM {i}")
-                        record = cur.fetchall()
-                        if len(record) == 0:
-                            continue
-                        for j in record:
-                            dict_ = {
-                                i: {
-                                    'vacancy': j[0],
-                                    'salary': j[1],
-                                    'url': j[2]
-                                }
+        with self.conn:
+            with self.conn.cursor() as cur:
+                for i in self.companies:
+                    cur.execute(f"SELECT vacancy, salary, url FROM {i}")
+                    record = cur.fetchall()
+                    if len(record) == 0:
+                        continue
+                    for j in record:
+                        dict_ = {
+                            i: {
+                                'vacancy': j[0],
+                                'salary': j[1],
+                                'url': j[2]
                             }
-                            print(json.dumps(dict_, indent=2, ensure_ascii=False))
-        finally:
-            self.conn.close()
+                        }
+                        print(json.dumps(dict_, indent=2, ensure_ascii=False))
 
     def get_avg_salary(self):
-        try:
-            with self.conn:
-                with self.conn.cursor() as cur:
-                    for i in self.companies:
-                        cur.execute(f"SELECT AVG(salary) FROM {i} WHERE salary != 0")
-                        record = cur.fetchall()
-                        if len(record) == 0:
-                            continue
-                        print(f"{i}: {round(record[0][0])}")
-
-        finally:
-            self.conn.close()
+        with self.conn:
+            with self.conn.cursor() as cur:
+                for i in self.companies:
+                    cur.execute(f"SELECT AVG(salary) FROM {i} WHERE salary != 0")
+                    record = cur.fetchall()
+                    if len(record) == 0:
+                        continue
+                    print(f"{i}: {round(record[0][0])}")
 
     def get_vacancies_with_higher_salary(self):
-        try:
-            with self.conn:
-                with self.conn.cursor() as cur:
-                    for i in self.companies:
-                        cur.execute(f"SELECT vacancy, salary FROM {i} WHERE salary > (SELECT AVG(salary) FROM {i} WHERE salary != 0)")
-                        record = cur.fetchall()
-                        if len(record) == 0:
-                            continue
-                        for j in record:
-                            print(f"{i}: {j[0]}({j[1]})")
-
-        finally:
-            self.conn.close()
+        with self.conn:
+            with self.conn.cursor() as cur:
+                for i in self.companies:
+                    cur.execute(f"SELECT vacancy, salary FROM {i} WHERE salary > (SELECT AVG(salary) FROM {i} WHERE salary != 0)")
+                    record = cur.fetchall()
+                    if len(record) == 0:
+                        continue
+                    for j in record:
+                        print(f"{i}: {j[0]}({j[1]})")
 
     def get_vacancies_with_keyword(self, keyword):
-        try:
-            with self.conn:
-                with self.conn.cursor() as cur:
-                    for i in self.companies:
-                        cur.execute(f"SELECT vacancy FROM {i} WHERE LOWER(vacancy) LIKE '%{keyword}%'")
-                        record = cur.fetchall()
-                        if len(record) == 0:
-                            continue
-                        for j in record:
-                            print(f"{i}: {j[0]}")
+        with self.conn:
+            with self.conn.cursor() as cur:
+                for i in self.companies:
+                    cur.execute(f"SELECT vacancy FROM {i} WHERE LOWER(vacancy) LIKE '%{keyword}%'")
+                    record = cur.fetchall()
+                    if len(record) == 0:
+                        continue
+                    for j in record:
+                        print(f"{i}: {j[0]}")
 
-        finally:
-            self.conn.close()
+    def close_conn(self):
+        self.conn.close()

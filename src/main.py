@@ -12,14 +12,15 @@ if __name__ == '__main__':
 
     user_action = input("База данных создана! Хотите ли вы вывести данные на экран?(Y/N)\n")
     while True:
+        manager = DBManager(companies)
         if user_action.lower() == 'n':
+            manager.close_conn()
             break
         elif user_action.lower() != 'y' and user_action != '':
             print("Нет такого варианта.")
             user_action = input('Хотите продолжить?\n')
             continue
         # Используем класс DBManager для получения данных
-        manager = DBManager(companies)
         users_choose = int(input('Введите число от 1 до 5 где:\n'
                                  '1. Получение всех компаний и количество их вакансий.\n'
                                  '2. Все вакансии с указанием компании, зарплаты и ссылки.\n'
