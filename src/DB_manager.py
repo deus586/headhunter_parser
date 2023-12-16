@@ -27,6 +27,7 @@ class DBManager:
                     cur.execute(f"SELECT COUNT(*) FROM {i}")
                     record = cur.fetchall()
                     if len(record) == 0:
+                        print(f'{i}: Нет таких вакансий.')
                         continue
                     print(f"{i}: {record[0][0]}")
 
@@ -40,6 +41,7 @@ class DBManager:
                     cur.execute(f"SELECT vacancy, salary, url FROM {i}")
                     record = cur.fetchall()
                     if len(record) == 0:
+                        print(f'{i}: Нет таких вакансий.')
                         continue
                     for j in record:
                         dict_ = {
@@ -61,6 +63,7 @@ class DBManager:
                     cur.execute(f"SELECT AVG(salary) FROM {i} WHERE salary != 0")
                     record = cur.fetchall()
                     if len(record) == 0:
+                        print(f'{i}: Нет таких вакансий.')
                         continue
                     print(f"{i}: {round(record[0][0])}")
 
@@ -74,6 +77,7 @@ class DBManager:
                     cur.execute(f"SELECT vacancy, salary FROM {i} WHERE salary > (SELECT AVG(salary) FROM {i} WHERE salary != 0)")
                     record = cur.fetchall()
                     if len(record) == 0:
+                        print(f'{i}: Нет таких вакансий.')
                         continue
                     for j in record:
                         print(f"{i}: {j[0]}({j[1]})")
@@ -89,6 +93,7 @@ class DBManager:
                     cur.execute(f"SELECT vacancy FROM {i} WHERE LOWER(vacancy) LIKE '%{keyword}%'")
                     record = cur.fetchall()
                     if len(record) == 0:
+                        print(f'{i}: Нет таких вакансий.')
                         continue
                     for j in record:
                         print(f"{i}: {j[0]}")
