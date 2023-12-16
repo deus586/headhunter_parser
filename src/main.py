@@ -38,6 +38,6 @@ if __name__ == '__main__':
             case 5:
                 keyword = input('Введите ключевое слово: ').lower()
                 manager.get_vacancies_with_keyword(keyword)
-            case '':
+            case _:
                 print("Нет такого варианта.")
         user_action = input('Хотите продолжить?\n')
