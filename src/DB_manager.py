@@ -31,6 +31,9 @@ class DBManager:
                     print(f"{i}: {record[0][0]}")
 
     def get_all_vacancies(self):
+        """
+        Получает список всех вакансий с указанием названия компании, названия вакансии и зарплаты и ссылки на вакансию.
+        """
         with self.conn:
             with self.conn.cursor() as cur:
                 for i in self.companies:
@@ -49,6 +52,9 @@ class DBManager:
                         print(json.dumps(dict_, indent=2, ensure_ascii=False))
 
     def get_avg_salary(self):
+        """
+        Получает среднюю зарплату по вакансиям.
+        """
         with self.conn:
             with self.conn.cursor() as cur:
                 for i in self.companies:
@@ -59,6 +65,9 @@ class DBManager:
                     print(f"{i}: {round(record[0][0])}")
 
     def get_vacancies_with_higher_salary(self):
+        """
+        Получает список всех вакансий, у которых зарплата выше средней по всем вакансиям.
+        """
         with self.conn:
             with self.conn.cursor() as cur:
                 for i in self.companies:
@@ -70,6 +79,10 @@ class DBManager:
                         print(f"{i}: {j[0]}({j[1]})")
 
     def get_vacancies_with_keyword(self, keyword):
+        """
+
+        Получает список всех вакансий, в названии которых содержатся переданные в метод слова.
+        """
         with self.conn:
             with self.conn.cursor() as cur:
                 for i in self.companies:
@@ -81,4 +94,7 @@ class DBManager:
                         print(f"{i}: {j[0]}")
 
     def close_conn(self):
+        """
+        Закрывает соединение с базой данных
+        """
         self.conn.close()

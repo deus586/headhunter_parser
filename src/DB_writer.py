@@ -19,13 +19,15 @@ class DBWriter:
         try:
             with self.conn:
                 with self.conn.cursor() as cur:
-                    # Запускаем скрипты создания таблиц
+                    # Парсим данные
                     vacancy_name, salary, description, url, area, company, schedule = self.hh.parser(company_name)
+                    # Запускаем скрипты создания таблиц
                     cur.execute(f"CREATE TABLE {company_name} (vacancy varchar(100), salary int,"
                                 f" description varchar, url varchar(100), area varchar(100),"
                                 f" schedule varchar(100))")
 
                     for i in range(len(vacancy_name)):
+                        # Заполняем таблицы
                         cur.execute(f"INSERT INTO {company_name} VALUES(%s, %s, %s, %s, %s, %s)",
                                     (vacancy_name[i], salary[i], description[i], url[i], area[i], schedule[i]))
         finally:
