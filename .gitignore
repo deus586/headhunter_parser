@@ -4,6 +4,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+*.ini
+
 # C extensions
 *.so
 
@@ -128,5 +130,3 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-
-.ini
