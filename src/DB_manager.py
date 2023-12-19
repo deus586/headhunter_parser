@@ -1,19 +1,15 @@
 import psycopg2
-import os
 import json
+from config import config
 
 
 class DBManager:
     """
     Класс для получения данных по фильтрам
     """
-    def __init__(self, companies):
-        self.conn = psycopg2.connect(
-            host='localhost',
-            database='headhunter_parser',
-            user='postgres',
-            password=os.getenv('PASSWORD')
-        )
+    def __init__(self, companies, database_name):
+        params = config()
+        self.conn = psycopg2.connect(dbname=database_name, **params)
         self.companies = companies
 
     def get_companies_and_vacancies_count(self):
@@ -23,13 +19,14 @@ class DBManager:
         """
         with self.conn:
             with self.conn.cursor() as cur:
-                for i in self.companies:
-                    cur.execute(f"SELECT COUNT(*) FROM {i}")
-                    record = cur.fetchall()
-                    if len(record) == 0:
-                        print(f'{i}: Нет таких вакансий.')
-                        continue
-                    print(f"{i}: {record[0][0]}")
+                cur.execute("""SELECT COUNT(*), company_name
+                            FROM companies
+                            INNER JOIN vacancies
+                            USING(company_id)
+                            GROUP BY company_id""")
+                record = cur.fetchall()
+                for i in record:
+                    print(f"{i[1]}: {i[0]}")
 
     def get_all_vacancies(self):
         """
@@ -37,21 +34,21 @@ class DBManager:
         """
         with self.conn:
             with self.conn.cursor() as cur:
-                for i in self.companies:
-                    cur.execute(f"SELECT vacancy, salary, url FROM {i}")
-                    record = cur.fetchall()
-                    if len(record) == 0:
-                        print(f'{i}: Нет таких вакансий.')
-                        continue
-                    for j in record:
-                        dict_ = {
-                            i: {
-                                'vacancy': j[0],
-                                'salary': j[1],
-                                'url': j[2]
-                            }
+                cur.execute("""SELECT company_name, vacancy_name, salary, url
+                            FROM companies
+                            INNER JOIN vacancies
+                            USING(company_id)""")
+                record = cur.fetchall()
+
+                for i in record:
+                    dict_ = {
+                        i[0]: {
+                            'vacancy': i[1],
+                            'salary': i[2],
+                            'url': i[3]
                         }
-                        print(json.dumps(dict_, indent=2, ensure_ascii=False))
+                    }
+                    print(json.dumps(dict_, indent=2, ensure_ascii=False))
 
     def get_avg_salary(self):
         """
@@ -59,13 +56,9 @@ class DBManager:
         """
         with self.conn:
             with self.conn.cursor() as cur:
-                for i in self.companies:
-                    cur.execute(f"SELECT AVG(salary) FROM {i} WHERE salary != 0")
-                    record = cur.fetchall()
-                    if len(record) == 0:
-                        print(f'{i}: Нет таких вакансий.')
-                        continue
-                    print(f"{i}: {round(record[0][0])}")
+                cur.execute(f"SELECT AVG(salary) FROM vacancies WHERE salary != 0")
+                record = cur.fetchall()
+                print(f"Средняя зарплата: {round(record[0][0])}")
 
     def get_vacancies_with_higher_salary(self):
         """
@@ -73,14 +66,14 @@ class DBManager:
         """
         with self.conn:
             with self.conn.cursor() as cur:
-                for i in self.companies:
-                    cur.execute(f"SELECT vacancy, salary FROM {i} WHERE salary > (SELECT AVG(salary) FROM {i} WHERE salary != 0)")
-                    record = cur.fetchall()
-                    if len(record) == 0:
-                        print(f'{i}: Нет таких вакансий.')
-                        continue
-                    for j in record:
-                        print(f"{i}: {j[0]}({j[1]})")
+                cur.execute(f"""SELECT company_name, vacancy_name, salary 
+                            FROM vacancies 
+                            INNER JOIN companies
+                            USING(company_id)
+                            WHERE salary > (SELECT AVG(salary) FROM vacancies WHERE salary != 0)""")
+                record = cur.fetchall()
+                for i in record:
+                    print(f"{i[0]}: {i[1]}({i[2]})")
 
     def get_vacancies_with_keyword(self, keyword):
         """
@@ -89,14 +82,14 @@ class DBManager:
         """
         with self.conn:
             with self.conn.cursor() as cur:
-                for i in self.companies:
-                    cur.execute(f"SELECT vacancy FROM {i} WHERE LOWER(vacancy) LIKE '%{keyword}%'")
-                    record = cur.fetchall()
-                    if len(record) == 0:
-                        print(f'{i}: Нет таких вакансий.')
-                        continue
-                    for j in record:
-                        print(f"{i}: {j[0]}")
+                cur.execute(f"""SELECT company_name, vacancy_name 
+                            FROM vacancies 
+                            INNER JOIN companies
+                            USING(company_id)
+                            WHERE LOWER(vacancy_name) LIKE '%{keyword}%'""")
+                record = cur.fetchall()
+                for i in record:
+                    print(f"{i[0]}: {i[1]}")
 
     def close_conn(self):
         """

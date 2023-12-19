@@ -20,7 +20,7 @@ class HeadHunter(Parser):
         area = []
         schedule = []
 
-        for page in range(10):
+        for page in range(5):
             params = {
                 'search_field': 'company_name',
                 'text': company_name,
@@ -55,4 +55,8 @@ class HeadHunter(Parser):
                     salary.append(0)
             if json.loads(data)['pages'] - page <= 1:
                 break
-        return vacancy_name, salary, description, url, area, company, schedule
+        data = [{'vacancy name': vacancy_name[j], 'salary': salary[j],
+                 'description': description[j], 'url': url[j],
+                 'area': area[j], 'company': company[j],
+                 'schedule': schedule[j]} for j in range(len(vacancy_name))]
+        return data

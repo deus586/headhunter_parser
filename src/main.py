@@ -1,18 +1,28 @@
-from DB_writer import DBWriter
 from DB_manager import DBManager
+from Utils import create_database, save_data_to_database
+from config import config
+from HH_parser import HeadHunter
 
 
 if __name__ == '__main__':
-    # Вводим названия компаний
-    companies = input("Введите названия компаний через пробел: ").split()
-    for comp in companies:
-        # Парсим и записываем в базу данных
-        hh = DBWriter()
-        hh.writer(comp)
+
+    params = config()
+
+    obj = HeadHunter()
+
+    users_input = input("Введите названия компаний через пробел: ").split()
+
+    create_database('headhunter_parser', params)
+
+    for company in users_input:
+        data = obj.parser(company)
+        data[0]['company'] = company
+
+        save_data_to_database(data, 'headhunter_parser', params)
 
     user_action = input("База данных создана! Хотите ли вы вывести данные на экран?(Y/N)\n")
     while True:
-        manager = DBManager(companies)
+        manager = DBManager(users_input, 'headhunter_parser')
         if user_action.lower() == 'n':
             manager.close_conn()
             break
